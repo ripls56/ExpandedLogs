@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### ⚙️ Miscellaneous Tasks
+
+- Bump version
+
+## [1.2.0] - 2024-12-30
+
 ### 🚀 Features
 
 - *(config)* Now mod can be tuned via config
