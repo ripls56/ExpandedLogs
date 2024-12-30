@@ -14,37 +14,89 @@ namespace ExpandedLogs
 {
     public class ExpandedLogsModSystem : ModSystem
     {
-
         private ICoreServerAPI api;
         private Timer timer;
+        private Config config;
+        private const string configFileName = "expandedlogs.json";
 
         public override void Start(ICoreAPI api)
         {
             api.Logger.Notification("Expanded logs start");
+            var config = api.LoadModConfig<Config>(configFileName);
+            if (config == null)
+            {
+                api.Logger.Error("[ExpandedLogs]: expandedlogs.json not found in mod config folder.");
+                api.Logger.Notification("[ExpandedLogs]: loaded default config");
+                config = api.Assets.Get<Config>(new AssetLocation("expandedlogs", "config/" + configFileName));
+            }
+            this.config = config;
+            api.Logger.Notification("[ExpandedLogs]: config loaded successfully. " + config);
         }
 
         public override void StartServerSide(ICoreServerAPI api)
         {
-            api.Logger.EntryAdded += Logger_EntryAdded;
+            if (config.LogEvents.ShowAudit)
+            {
+                api.Logger.EntryAdded += Logger_EntryAdded;
+            }
 
             // Block events
-            api.Event.BreakBlock += Event_BreakBlock;
-            api.Event.DidBreakBlock += Event_DidBreakBlock;
-            api.Event.DidPlaceBlock += Event_DidPlaceBlock;
-            api.Event.DidUseBlock += Event_DidUseBlock;
+            foreach (var logEvent in config.LogEvents.BlockEvents)
+            {
+                switch (logEvent)
+                {
+                    case "DidPlaceBlock":
+                        api.Event.DidPlaceBlock += Event_DidPlaceBlock;
+                        break;
+                    case "DidBreakBlock":
+                        api.Event.DidBreakBlock += Event_DidBreakBlock;
+                        break;
+                    case "DidUseBlock":
+                        api.Event.DidUseBlock += Event_DidUseBlock;
+                        break;
+                    case "BreakBlock":
+                        api.Event.BreakBlock += Event_BreakBlock;
+                        break;
+                }
+            }
 
             // Player events
-            api.Event.OnPlayerInteractEntity += Event_OnPlayerInteractEntity;
-            api.Event.PlayerChat += Event_PlayerChat;
-            api.Event.PlayerDeath += Event_PlayerDeath;
-            api.Event.PlayerRespawn += Event_PlayerRespawn;
+            foreach (var logEvent in config.LogEvents.PlayerEvents)
+            {
+                switch (logEvent)
+                {
+                    case "PlayerChat":
+                        api.Event.PlayerChat += Event_PlayerChat;
+                        break;
+                    case "PlayerDeath":
+                        api.Event.PlayerDeath += Event_PlayerDeath;
+                        break;
+                    case "PlayerRespawn":
+                        api.Event.PlayerRespawn += Event_PlayerRespawn;
+                        break;
+                    case "OnPlayerInteractEntity":
+                        api.Event.OnPlayerInteractEntity += Event_OnPlayerInteractEntity;
+                        break;
+                }
+            }
+
             //api.Event.AfterActiveSlotChanged += Event_AfterActiveSlotChanged;
 
             // Chunk events
-            api.Event.ChunkColumnLoaded += Event_ChunkColumnLoaded;
+            foreach (var logEvent in config.LogEvents.PlayerEvents)
+            {
+                switch (logEvent)
+                {
+                    case "ChunkColumnLoaded":
+                        api.Event.ChunkColumnLoaded += Event_ChunkColumnLoaded;
+                        break;
+                }
+            }
 
             TimerCallback tm = new(GetAllPlayersCords);
-            timer = new(tm, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+            var delay = TimeSpan.FromSeconds(config.PlayerCords.StartDelay);
+            var interval = TimeSpan.FromSeconds(config.PlayerCords.Interval);
+            timer = new(tm, null, delay, interval);
 
             this.api = api;
             LogPosUtils.api = api;
@@ -184,12 +236,10 @@ namespace ExpandedLogs
                     MaxDepth = 1
                 });
                 sb.Append($"{json}");
-                api.Logger.Audit($"[ExtendedLogging] {sb}");
                 api.Logger.Audit($"[ExpandedLogs] {sb}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("[ExtendedLogging] " + ex);
                 Console.WriteLine("[ExpandedLogs] " + ex);
             }
         }
@@ -203,7 +253,6 @@ namespace ExpandedLogs
                     case EnumLogType.Audit:
                         if (args == null)
                         {
-                            Console.WriteLine("[ExtendedLogging] разрабы дауны анвак");
                             Console.WriteLine("[ExpandedLogs] разраб насрал и не убрал");
                             return;
                         }
@@ -219,7 +268,6 @@ namespace ExpandedLogs
             }
             catch (Exception ex)
             {
-                Console.WriteLine("[ExtendedLogging] " + ex);
                 Console.WriteLine("[ExpandedLogs] " + ex);
             }
         }

@@ -1,0 +1,24 @@
+{
+  "playerCords": {
+    "interval": 10,
+    "startDelay": 10
+  },
+  "logEvents": {
+    "showAudit": true,
+    "playerEvents": [
+      "PlayerChat",
+      "PlayerDeath",
+      "PlayerRespawn",
+      "OnPlayerInteractEntity"
+    ],
+    "blockEvents": [
+      "DidPlaceBlock",
+      "DidBreakBlock",
+      "DidUseBlock",
+      "BreakBlock"
+    ],
+    "chunkEvents": [
+      "ChunkColumnLoaded"
+    ]
+  }
+}
