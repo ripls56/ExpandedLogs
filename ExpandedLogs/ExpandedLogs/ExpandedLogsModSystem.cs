@@ -93,9 +93,9 @@ namespace ExpandedLogs
                 }
             }
 
-            TimerCallback tm = new(GetAllPlayersCords);
-            var delay = TimeSpan.FromSeconds(config.PlayerCords.StartDelay);
-            var interval = TimeSpan.FromSeconds(config.PlayerCords.Interval);
+            TimerCallback tm = new(GetAllPlayersCoords);
+            var delay = TimeSpan.FromSeconds(config.PlayerCoords.StartDelay);
+            var interval = TimeSpan.FromSeconds(config.PlayerCoords.Interval);
             timer = new(tm, null, delay, interval);
 
             this.api = api;
@@ -108,14 +108,14 @@ namespace ExpandedLogs
             base.Dispose();
         }
 
-        private void GetAllPlayersCords(object _)
+        private void GetAllPlayersCoords(object _)
         {
             api.World.AllPlayers.Foreach(p =>
             {
-                Log("PlayerCords", new Dictionary<string, object>
+                Log("PlayerCoords", new Dictionary<string, object>
                 {
                     { "player_name", p.PlayerName },
-                    { "cords", LogPosUtils.AbsToRel(p.Entity.Pos.XYZ) },
+                    { "coords", LogPosUtils.AbsToRel(p.Entity.Pos.XYZ) },
                 });
             });
         }
@@ -124,7 +124,7 @@ namespace ExpandedLogs
         {
             Log("ChunkColumnLoaded", new Dictionary<string, object>
             {
-                { "chunk_cord", chunkCoord },
+                { "chunk_coord", chunkCoord },
                 { "chunks_loaded", chunks.Length }
             });
         }

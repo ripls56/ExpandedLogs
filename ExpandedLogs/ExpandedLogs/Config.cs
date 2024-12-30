@@ -9,7 +9,7 @@ namespace ExpandedLogs
 {
     public class Config
     {
-        public PlayerCords PlayerCords { get; set; }
+        public PlayerCords PlayerCoords { get; set; }
 
         public LogEvents LogEvents { get; set; }
 

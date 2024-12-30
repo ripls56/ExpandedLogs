@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpandedLogs", "ExpandedLogs\ExpandedLogs\ExpandedLogs.csproj", "{8C86B771-9E41-4B4A-98E5-36C61608C8F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpandedLogs", "ExpandedLogs\ExpandedLogs\ExpandedLogs.csproj", "{8C86B771-9E41-4B4A-98E5-36C61608C8F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CakeBuild", "ExpandedLogs\ZZCakeBuild\CakeBuild.csproj", "{7E3C2668-E5D8-4857-850E-223B3B11C063}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CakeBuild", "ExpandedLogs\ZZCakeBuild\CakeBuild.csproj", "{7E3C2668-E5D8-4857-850E-223B3B11C063}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
