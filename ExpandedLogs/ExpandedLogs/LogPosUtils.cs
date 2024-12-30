@@ -3,6 +3,9 @@ using Vintagestory.API.Server;
 
 namespace ExpandedLogs
 {
+    /// <summary>
+    /// Used to convert absolute coords to relative coords
+    /// </summary>
     public static class LogPosUtils
     {
         public static ICoreServerAPI api;

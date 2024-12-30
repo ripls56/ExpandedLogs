@@ -8,6 +8,9 @@ using Vintagestory.API.MathTools;
 
 namespace ExpandedLogs
 {
+    /// <summary>
+    /// Used in logger instead of <see cref="IWorldPlayerData"/> because of shit ton of textures and other things
+    /// </summary>
     class LogWorldData
     {
         public string playeruid;
