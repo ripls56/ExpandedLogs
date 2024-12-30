@@ -14,7 +14,7 @@ namespace ExpandedLogs
 {
     public class ExpandedLogsModSystem : ModSystem
     {
-        private ICoreServerAPI api;
+        private EventManager eventManager;
         private Timer timer;
         private Config config;
         private const string configFileName = "expandedlogs.json";
@@ -30,14 +30,16 @@ namespace ExpandedLogs
                 config = api.Assets.Get<Config>(new AssetLocation("expandedlogs", "config/" + configFileName));
             }
             this.config = config;
-            api.Logger.Notification("[ExpandedLogs]: config loaded successfully. " + config);
+            Console.WriteLine("[ExpandedLogs]: config loaded successfully. " + config);
         }
 
         public override void StartServerSide(ICoreServerAPI api)
         {
+            eventManager = new(api);
+
             if (config.LogEvents.ShowAudit)
             {
-                api.Logger.EntryAdded += Logger_EntryAdded;
+                api.Logger.EntryAdded += eventManager.Logger_EntryAdded;
             }
 
             // Block events
@@ -46,16 +48,16 @@ namespace ExpandedLogs
                 switch (logEvent)
                 {
                     case "DidPlaceBlock":
-                        api.Event.DidPlaceBlock += Event_DidPlaceBlock;
+                        api.Event.DidPlaceBlock += eventManager.Event_DidPlaceBlock;
                         break;
                     case "DidBreakBlock":
-                        api.Event.DidBreakBlock += Event_DidBreakBlock;
+                        api.Event.DidBreakBlock += eventManager.Event_DidBreakBlock;
                         break;
                     case "DidUseBlock":
-                        api.Event.DidUseBlock += Event_DidUseBlock;
+                        api.Event.DidUseBlock += eventManager.Event_DidUseBlock;
                         break;
                     case "BreakBlock":
-                        api.Event.BreakBlock += Event_BreakBlock;
+                        api.Event.BreakBlock += eventManager.Event_BreakBlock;
                         break;
                 }
             }
@@ -66,16 +68,16 @@ namespace ExpandedLogs
                 switch (logEvent)
                 {
                     case "PlayerChat":
-                        api.Event.PlayerChat += Event_PlayerChat;
+                        api.Event.PlayerChat += eventManager.Event_PlayerChat;
                         break;
                     case "PlayerDeath":
-                        api.Event.PlayerDeath += Event_PlayerDeath;
+                        api.Event.PlayerDeath += eventManager.Event_PlayerDeath;
                         break;
                     case "PlayerRespawn":
-                        api.Event.PlayerRespawn += Event_PlayerRespawn;
+                        api.Event.PlayerRespawn += eventManager.Event_PlayerRespawn;
                         break;
                     case "OnPlayerInteractEntity":
-                        api.Event.OnPlayerInteractEntity += Event_OnPlayerInteractEntity;
+                        api.Event.OnPlayerInteractEntity += eventManager.Event_OnPlayerInteractEntity;
                         break;
                 }
             }
@@ -88,17 +90,16 @@ namespace ExpandedLogs
                 switch (logEvent)
                 {
                     case "ChunkColumnLoaded":
-                        api.Event.ChunkColumnLoaded += Event_ChunkColumnLoaded;
+                        api.Event.ChunkColumnLoaded += eventManager.Event_ChunkColumnLoaded;
                         break;
                 }
             }
 
-            TimerCallback tm = new(GetAllPlayersCoords);
+            TimerCallback tm = new(eventManager.GetAllPlayersCoords);
             var delay = TimeSpan.FromSeconds(config.PlayerCoords.StartDelay);
             var interval = TimeSpan.FromSeconds(config.PlayerCoords.Interval);
             timer = new(tm, null, delay, interval);
 
-            this.api = api;
             LogPosUtils.api = api;
         }
 
@@ -106,170 +107,6 @@ namespace ExpandedLogs
         {
             timer.Dispose();
             base.Dispose();
-        }
-
-        private void GetAllPlayersCoords(object _)
-        {
-            api.World.AllPlayers.Foreach(p =>
-            {
-                Log("PlayerCoords", new Dictionary<string, object>
-                {
-                    { "player_name", p.PlayerName },
-                    { "coords", LogPosUtils.AbsToRel(p.Entity.Pos.XYZ) },
-                });
-            });
-        }
-
-        private void Event_ChunkColumnLoaded(Vec2i chunkCoord, IWorldChunk[] chunks)
-        {
-            Log("ChunkColumnLoaded", new Dictionary<string, object>
-            {
-                { "chunk_coord", chunkCoord },
-                { "chunks_loaded", chunks.Length }
-            });
-        }
-
-        //private void Event_AfterActiveSlotChanged(IServerPlayer byPlayer, ActiveSlotChangeEventArgs activeSlot)
-        //{
-        //    Log("AfterActiveSlotChanged", new Dictionary<string, object>
-        //    {
-        //        { "player", LogPlayer.FromGamePlayer(byPlayer) },
-        //        { "active_slot", activeSlot }
-        //    });
-        //}
-
-        private void Event_PlayerRespawn(IServerPlayer byPlayer)
-        {
-            Log("PlayerRespawn", new Dictionary<string, object>
-            {
-                { "player", LogPlayer.FromGamePlayer(byPlayer) }
-            });
-        }
-
-        private void Event_PlayerDeath(IServerPlayer byPlayer, DamageSource damageSource)
-        {
-            Log("PlayerDeath", new Dictionary<string, object>
-            {
-                { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "damage_source", damageSource.Type }
-            });
-        }
-
-        private void Event_PlayerChat(IServerPlayer byPlayer, int channelId, ref string message, ref string data, Vintagestory.API.Datastructures.BoolRef consumed)
-        {
-            Log("PlayerChat", new Dictionary<string, object>
-            {
-                { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "channel_id", channelId },
-                { "message", message },
-                { "data", data }
-            });
-        }
-
-        private void Event_OnPlayerInteractEntity(Vintagestory.API.Common.Entities.Entity entity, IPlayer byPlayer, ItemSlot slot, Vintagestory.API.MathTools.Vec3d hitPosition, int mode, ref EnumHandling handling)
-        {
-            Log("OnPlayerInteractEntity", new Dictionary<string, object>
-            {
-                { "entity", LogEntity.FromGameEntity(entity) },
-                { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "inventory", LogSlot.FromGameSlot(slot) },
-                { "hit_position", hitPosition },
-                { "mode", mode }
-            });
-        }
-
-        private void Event_DidUseBlock(IServerPlayer byPlayer, BlockSelection blockSel)
-        {
-            Log("DidUseBlock", new Dictionary<string, object>
-            {
-                { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "block_selection", LogPosUtils.AbsToRel(blockSel.Position.AsVec3i) }
-            });
-        }
-
-        private void Event_DidPlaceBlock(IServerPlayer byPlayer, int oldblockId, BlockSelection blockSel, ItemStack stack)
-        {
-            Log("DidPlaceBlock", new Dictionary<string, object>
-            {
-                { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "old_block_id", oldblockId },
-                { "block_selection", LogPosUtils.AbsToRel(blockSel.Position.AsVec3i) },
-                { "item", new Dictionary<string, object>
-                {
-                    { "count", stack.StackSize },
-                    { "id", stack.Id},
-                    { "code", stack.Collectible?.Code },
-                } }
-            });
-        }
-
-        private void Event_BreakBlock(IServerPlayer byPlayer, BlockSelection blockSel, ref float dropQuantityMultiplier, ref EnumHandling handling)
-        {
-            Log("BreakBlock", new Dictionary<string, object>
-            {
-                { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "block_selection", LogPosUtils.AbsToRel(blockSel.Position.AsVec3i) },
-                { "drop_quantity_multiplier", dropQuantityMultiplier }
-            });
-        }
-
-        private void Event_DidBreakBlock(IServerPlayer byPlayer, int oldblockId, BlockSelection blockSel)
-        {
-            Log("DidBreakBlock", new Dictionary<string, object>
-            {
-                { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "old_block_id", oldblockId },
-                { "block_selection", LogPosUtils.AbsToRel(blockSel.Position.AsVec3i) }
-            });
-        }
-
-        private void Log(string scope, Dictionary<string, object> param)
-        {
-            try
-            {
-                var sb = new StringBuilder();
-                param.Add("scope", scope);
-                var json = JsonConvert.SerializeObject(param, Formatting.None, new JsonSerializerSettings()
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MaxDepth = 1
-                });
-                sb.Append($"{json}");
-                api.Logger.Audit($"[ExpandedLogs] {sb}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("[ExpandedLogs] " + ex);
-            }
-        }
-
-        private void Logger_EntryAdded(EnumLogType logType, string message, params object[] args)
-        {
-            try
-            {
-                switch (logType)
-                {
-                    case EnumLogType.Audit:
-                        if (args == null)
-                        {
-                            Console.WriteLine("[ExpandedLogs] разраб насрал и не убрал");
-                            return;
-                        }
-                        string pattern = @"\{(\d+)\}";
-                        string result = Regex.Replace(message, pattern, match =>
-                        {
-                            int index = int.Parse(match.Groups[1].Value);
-                            return args[index].ToString();
-                        });
-                        Console.WriteLine($"[Audit] {result}");
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("[ExpandedLogs] " + ex);
-            }
         }
     }
 }
