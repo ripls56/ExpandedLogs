@@ -185,10 +185,12 @@ namespace ExpandedLogs
                 });
                 sb.Append($"{json}");
                 api.Logger.Audit($"[ExtendedLogging] {sb}");
+                api.Logger.Audit($"[ExpandedLogs] {sb}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("[ExtendedLogging] " + ex);
+                Console.WriteLine("[ExpandedLogs] " + ex);
             }
         }
 
@@ -202,6 +204,7 @@ namespace ExpandedLogs
                         if (args == null)
                         {
                             Console.WriteLine("[ExtendedLogging] разрабы дауны анвак");
+                            Console.WriteLine("[ExpandedLogs] разраб насрал и не убрал");
                             return;
                         }
                         string pattern = @"\{(\d+)\}";
@@ -217,88 +220,8 @@ namespace ExpandedLogs
             catch (Exception ex)
             {
                 Console.WriteLine("[ExtendedLogging] " + ex);
+                Console.WriteLine("[ExpandedLogs] " + ex);
             }
         }
-    }
-}
-
-class LogSlot
-{
-    public string slot;
-    public string name;
-    public int stackSize;
-
-    public static LogSlot FromGameSlot(ItemSlot item)
-    {
-        return new LogSlot
-        {
-            slot = item.BackgroundIcon,
-            name = SafeGetName(item),
-            stackSize = item.StackSize,
-        };
-    }
-
-    private static string SafeGetName(ItemSlot item)
-    {
-        var name = item.GetStackName();
-        if (name == null)
-        {
-            name = "Empty";
-        }
-        return name;
-    }
-}
-
-class LogPlayer
-{
-    public string nickname;
-    public string uid;
-    public LogWorldData worldData;
-
-    public static LogPlayer FromGamePlayer(IPlayer player)
-    {
-
-        return new LogPlayer
-        {
-            nickname = player.PlayerName,
-            uid = player.PlayerUID,
-            worldData = LogWorldData.FromGamePlayer(player.WorldData, player.Entity.Pos.XYZ)
-        };
-    }
-}
-
-class LogEntity
-{
-    public EnumEntityState state;
-    public EntityStats stats;
-    public Vec3d cords;
-
-    public static LogEntity FromGameEntity(Vintagestory.API.Common.Entities.Entity entity)
-    {
-
-        return new LogEntity
-        {
-            state = entity.State,
-            stats = entity.Stats,
-            cords = LogPosUtils.AbsToRel(entity.Pos.XYZ)
-        };
-    }
-}
-
-
-class LogWorldData
-{
-    public string playeruid;
-    public int deaths;
-    public Vec3d cords;
-
-    public static LogWorldData FromGamePlayer(IWorldPlayerData world, Vec3d cords)
-    {
-        return new LogWorldData
-        {
-            playeruid = world.PlayerUID,
-            deaths = world.Deaths,
-            cords = LogPosUtils.AbsToRel(cords)
-        };
     }
 }
