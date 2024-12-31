@@ -85,7 +85,7 @@ namespace ExpandedLogs
             //api.Event.AfterActiveSlotChanged += Event_AfterActiveSlotChanged;
 
             // Chunk events
-            foreach (var logEvent in config.LogEvents.PlayerEvents)
+            foreach (var logEvent in config.LogEvents.ChunkEvents)
             {
                 switch (logEvent)
                 {
