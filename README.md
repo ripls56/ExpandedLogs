@@ -24,3 +24,5 @@ Clone [repo](https://github.com/ripls56/vs-server-expandedlog-example) with comp
 U need to change grafana and loki timezones in docker-compose.yaml
 
 Run it with `docker compose up -d`. If u need any server changes such as some kind of environments u can check [vintage story docker image](https://github.com/jsknnr/vintage-story-server) readme.
+
+> If u have any other questions u can ask in [discussions](https://github.com/ripls56/ExpandedLogs/discussions)
