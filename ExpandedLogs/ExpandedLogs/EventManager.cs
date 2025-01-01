@@ -29,6 +29,8 @@ namespace ExpandedLogs
         {
             api.World.AllPlayers.Foreach(p =>
             {
+                if (p.PlayerName == null) { return; }
+                
                 Log("PlayerCoords", new Dictionary<string, object>
                 {
                     { "player_name", p.PlayerName },
