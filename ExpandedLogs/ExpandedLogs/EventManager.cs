@@ -25,16 +25,34 @@ namespace ExpandedLogs
         /// Get all player coords
         /// </summary>
         /// <param name="_"></param>
-        public void GetAllPlayersCoords(object _)
+        public void GetAllOnlinePlayersCoords(object _)
         {
-            api.World.AllPlayers.Foreach(p =>
+            api.World.AllOnlinePlayers.Foreach(p =>
             {
-                if (p.PlayerName == null) { return; }
-                
-                Log("PlayerCoords", new Dictionary<string, object>
+                var scope = "PlayerCoords";
+                if (p == null) {
+                    Console.WriteLine($"[Warning] [ExpandedLog] [{scope}] player is null");
+                    return;
+                }
+                if (p?.PlayerName == null) {
+                    Console.WriteLine($"[Warning] [ExpandedLog] [{scope}] player name is null");
+                    return;
+                }
+                if (p?.Entity == null) {
+                    Console.WriteLine($"[Warning] [ExpandedLog] [{scope}] entity pos is null");
+                    return;
+                }
+                if (p?.Entity?.Pos == null) {
+                    Console.WriteLine($"[Warning] [ExpandedLog] [{scope}] entity pos is null");
+                    return;
+                }
+
+                var pos = LogPosUtils.AbsToRel(p.Entity.Pos.XYZ);
+                if (pos.AsVec3i == api.World.DefaultSpawnPosition.XYZ.AsVec3i) { return; }
+                Log(scope, new Dictionary<string, object>
                 {
                     { "player_name", p.PlayerName },
-                    { "coords", LogPosUtils.AbsToRel(p.Entity.Pos.XYZ) },
+                    { "coords", pos },
                 });
             });
         }

@@ -35,72 +35,96 @@ namespace ExpandedLogs
 
         public override void StartServerSide(ICoreServerAPI api)
         {
-            eventManager = new(api);
-
-            if (config.LogEvents.ShowAudit)
+            try
             {
-                api.Logger.EntryAdded += eventManager.Logger_EntryAdded;
-            }
+                eventManager = new(api);
 
-            // Block events
-            foreach (var logEvent in config.LogEvents.BlockEvents)
-            {
-                switch (logEvent)
+                api.Event.PlayerJoin += Event_PlayerJoin;
+
+                if (config.LogEvents.ShowAudit)
                 {
-                    case "DidPlaceBlock":
-                        api.Event.DidPlaceBlock += eventManager.Event_DidPlaceBlock;
-                        break;
-                    case "DidBreakBlock":
-                        api.Event.DidBreakBlock += eventManager.Event_DidBreakBlock;
-                        break;
-                    case "DidUseBlock":
-                        api.Event.DidUseBlock += eventManager.Event_DidUseBlock;
-                        break;
-                    case "BreakBlock":
-                        api.Event.BreakBlock += eventManager.Event_BreakBlock;
-                        break;
+                    api.Logger.EntryAdded += eventManager.Logger_EntryAdded;
+                }
+
+                // Block events
+                foreach (var logEvent in config.LogEvents.BlockEvents)
+                {
+                    switch (logEvent)
+                    {
+                        case "DidPlaceBlock":
+                            api.Event.DidPlaceBlock += eventManager.Event_DidPlaceBlock;
+                            break;
+                        case "DidBreakBlock":
+                            api.Event.DidBreakBlock += eventManager.Event_DidBreakBlock;
+                            break;
+                        case "DidUseBlock":
+                            api.Event.DidUseBlock += eventManager.Event_DidUseBlock;
+                            break;
+                        case "BreakBlock":
+                            api.Event.BreakBlock += eventManager.Event_BreakBlock;
+                            break;
+                    }
+                }
+
+                // Player events
+                foreach (var logEvent in config.LogEvents.PlayerEvents)
+                {
+                    switch (logEvent)
+                    {
+                        case "PlayerChat":
+                            api.Event.PlayerChat += eventManager.Event_PlayerChat;
+                            break;
+                        case "PlayerDeath":
+                            api.Event.PlayerDeath += eventManager.Event_PlayerDeath;
+                            break;
+                        case "PlayerRespawn":
+                            api.Event.PlayerRespawn += eventManager.Event_PlayerRespawn;
+                            break;
+                        case "OnPlayerInteractEntity":
+                            api.Event.OnPlayerInteractEntity += eventManager.Event_OnPlayerInteractEntity;
+                            break;
+                    }
+                }
+
+                //api.Event.AfterActiveSlotChanged += Event_AfterActiveSlotChanged;
+
+                // Chunk events
+                foreach (var logEvent in config.LogEvents.ChunkEvents)
+                {
+                    switch (logEvent)
+                    {
+                        case "ChunkColumnLoaded":
+                            api.Event.ChunkColumnLoaded += eventManager.Event_ChunkColumnLoaded;
+                            break;
+                    }
+                }
+
+                LogPosUtils.api = api;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"[ExpandedLogs] {ex}");
+            }
+        }
+
+        private void Event_PlayerJoin(IServerPlayer byPlayer)
+        {
+            try
+            {
+                var called = false;
+                if (!called)
+                {
+                    TimerCallback tm = new(eventManager.GetAllOnlinePlayersCoords);
+                    var delay = TimeSpan.FromSeconds(1);
+                    var interval = TimeSpan.FromSeconds(config.PlayerCoords.Interval);
+                    timer = new(tm, null, delay, interval);
+
+                    called = true;
                 }
             }
-
-            // Player events
-            foreach (var logEvent in config.LogEvents.PlayerEvents)
-            {
-                switch (logEvent)
-                {
-                    case "PlayerChat":
-                        api.Event.PlayerChat += eventManager.Event_PlayerChat;
-                        break;
-                    case "PlayerDeath":
-                        api.Event.PlayerDeath += eventManager.Event_PlayerDeath;
-                        break;
-                    case "PlayerRespawn":
-                        api.Event.PlayerRespawn += eventManager.Event_PlayerRespawn;
-                        break;
-                    case "OnPlayerInteractEntity":
-                        api.Event.OnPlayerInteractEntity += eventManager.Event_OnPlayerInteractEntity;
-                        break;
-                }
+            catch(Exception ex) { 
+                Console.WriteLine($"[ExpandedLogs] {ex}");
             }
-
-            //api.Event.AfterActiveSlotChanged += Event_AfterActiveSlotChanged;
-
-            // Chunk events
-            foreach (var logEvent in config.LogEvents.ChunkEvents)
-            {
-                switch (logEvent)
-                {
-                    case "ChunkColumnLoaded":
-                        api.Event.ChunkColumnLoaded += eventManager.Event_ChunkColumnLoaded;
-                        break;
-                }
-            }
-
-            TimerCallback tm = new(eventManager.GetAllPlayersCoords);
-            var delay = TimeSpan.FromSeconds(config.PlayerCoords.StartDelay);
-            var interval = TimeSpan.FromSeconds(config.PlayerCoords.Interval);
-            timer = new(tm, null, delay, interval);
-
-            LogPosUtils.api = api;
         }
 
         public override void Dispose()
