@@ -70,7 +70,7 @@ namespace ExpandedLogs
             Log("PlayerDeath", new Dictionary<string, object>
             {
                 { "player", LogPlayer.FromGamePlayer(byPlayer) },
-                { "damage_source", damageSource.Type }
+                { "damage_source", Enum.GetName(damageSource.Type) }
             });
         }
 
