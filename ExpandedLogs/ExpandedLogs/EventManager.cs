@@ -177,6 +177,7 @@ namespace ExpandedLogs
                         // Use regex because message look like: {0} some message. Where {0} index in args
                         string result = Regex.Replace(message, pattern, match =>
                         {
+                            if (match.Groups[1].Value == null) { return message; }
                             int index = int.Parse(match.Groups[1].Value);
                             return args[index].ToString();
                         });
