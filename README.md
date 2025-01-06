@@ -2,6 +2,9 @@
 
 Enhances the default logging capabilities in Vintage Story, providing more detailed and useful logs for tracking various in-game events. 
 
+![Example dashboard](image.png)
+> This dashboard can be found in repo below
+
 The mod allows you to monitor the following actions:
 - Block Breakage and Placement: The mod records all instances of block destruction and placement, enabling you to track changes in the game world.
 - Inventory Interactions: Logs include information on all inventory-related actions, such as adding, removing, and moving items.
@@ -19,7 +22,7 @@ The mod allows you to monitor the following actions:
  - loki plugin `docker plugin install grafana/loki-docker-driver:2.9.4 --alias loki --grant-all-permissions`
 
 ### Run
-Clone [repo](https://github.com/ripls56/vs-server-expandedlog-example) with compose and simple configs
+Clone [repo](https://github.com/ripls56/vs-server-expandedlog-example) with compose, simple configs and example dashboard
 
 U need to change grafana and loki timezones in docker-compose.yaml
 
