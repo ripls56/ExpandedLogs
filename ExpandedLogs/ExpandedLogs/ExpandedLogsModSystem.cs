@@ -93,6 +93,9 @@ namespace ExpandedLogs
                 {
                     switch (logEvent)
                     {
+                        case "ChunkDirty":
+                            api.Event.ChunkDirty += eventManager.Event_ChunkDirty;
+                            break;
                         case "ChunkColumnLoaded":
                             api.Event.ChunkColumnLoaded += eventManager.Event_ChunkColumnLoaded;
                             break;
@@ -115,7 +118,7 @@ namespace ExpandedLogs
                 if (!called)
                 {
                     TimerCallback tm = new(eventManager.GetAllOnlinePlayersCoords);
-                    var delay = TimeSpan.FromSeconds(1);
+                    var delay = TimeSpan.FromSeconds(config.PlayerCoords.StartDelay);
                     var interval = TimeSpan.FromSeconds(config.PlayerCoords.Interval);
                     timer = new(tm, null, delay, interval);
 

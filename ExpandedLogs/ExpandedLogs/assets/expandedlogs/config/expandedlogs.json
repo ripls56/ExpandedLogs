@@ -18,7 +18,8 @@
       "BreakBlock"
     ],
     "chunkEvents": [
-      "ChunkColumnLoaded"
+      "ChunkColumnLoaded",
+      "ChunkDirty"
     ]
   }
 }

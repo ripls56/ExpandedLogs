@@ -9,6 +9,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
+using Vintagestory.Common.Database;
 
 namespace ExpandedLogs
 {
@@ -63,6 +64,15 @@ namespace ExpandedLogs
             {
                 { "chunk_coord", chunkCoord },
                 { "chunks_loaded", chunks.Length }
+            });
+        }
+
+        public void Event_ChunkDirty(Vec3i chunkCoord, IWorldChunk chunk, EnumChunkDirtyReason reason)
+        {
+            Log("ChunkDirty", new Dictionary<string, object>
+            {
+                { "chunk_coord", chunkCoord },
+                { "reason", Enum.GetName(reason) }
             });
         }
 
